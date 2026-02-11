@@ -1,0 +1,10 @@
+toml
+[versions]
+# ... other versions
+kotlin = "2.0.0" # Downgrade from 2.2.0
+# ...
+
+[plugins]
+# ...
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
