@@ -6,9 +6,9 @@ import retrofit2.http.Query
 interface FreeToGameApi {
     @GET("games")
     suspend fun games(
-        @Query("platform") platform: String? = null,      // "pc", "browser", "all"
-        @Query("category") category: String? = null,      // "shooter", "mmorpg" ...
-        @Query("sort-by") sortBy: String? = null          // "popularity", "release-date" ...
+        @Query("platform") platform: String? = null,
+        @Query("category") category: String? = null,
+        @Query("sort-by") sortBy: String? = null
     ): List<GameDto>
 
     @GET("game")

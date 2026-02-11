@@ -70,6 +70,34 @@ class GameRepositoryImpl @Inject constructor(
             val favIds = favs.map { it.gameId }.toSet()
             games.filter { favIds.contains(it.id) }.map { it.toDomain() }
         }
+
+    override suspend fun refreshCatalog() {
+        val now = System.currentTimeMillis()
+        val remote = api.games(platform = "all", sortBy = "popularity") // базовый каталог
+        val entities = remote.map {
+            GameEntity(
+                id = it.id,
+                title = it.title,
+                thumbnailUrl = it.thumbnailUrl,
+                shortDescription = it.shortDescription,
+                genre = it.genre,
+                platform = it.platform,
+                updatedAt = now
+            )
+        }
+        gameDao.upsertAll(entities)
+    }
+
+    override fun searchLocal(query: String): Flow<List<Game>> {
+        val q = query.trim().lowercase()
+        return gameDao.observeAll().map { list ->
+            if (q.isBlank()) emptyList()
+            else list
+                .filter { it.title.lowercase().contains(q) }
+                .map { it.toDomain() }
+                .take(50)
+        }
+    }
 }
 
 private fun GameEntity.toDomain(): Game = Game(

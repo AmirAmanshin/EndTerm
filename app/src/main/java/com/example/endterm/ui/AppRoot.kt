@@ -18,10 +18,10 @@ object Routes {
 fun AppRoot() {
     val nav = rememberNavController()
 
-    NavHost(navController = nav, startDestination = Routes.FEED) {
+    NavHost(navController = nav, startDestination = Routes.SEARCH) {
 //        composable(Routes.LOGIN) { LoginScreen() }
         composable(Routes.FEED) { FeedScreen(onOpenDetails = { id -> nav.navigate("details/$id") }) }
-//        composable(Routes.SEARCH) { SearchScreen() }
+        composable(Routes.SEARCH) { SearchScreen(onOpenDetails = { id -> nav.navigate("details/$id") }) }
         composable(Routes.FAVORITES) { FavoritesScreen(onOpenDetails = { id -> nav.navigate("details/$id") }) }
         composable(Routes.DETAILS) { backStack ->
             val id = backStack.arguments?.getString("id") ?: return@composable

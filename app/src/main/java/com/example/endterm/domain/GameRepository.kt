@@ -9,4 +9,6 @@ interface GameRepository {
     suspend fun toggleFavorite(gameId: Int)
     fun observeIsFavorite(gameId: Int): Flow<Boolean>
     fun observeFavorites(): Flow<List<Game>>
+    fun searchLocal(query: String): Flow<List<Game>>
+    suspend fun refreshCatalog()
 }
