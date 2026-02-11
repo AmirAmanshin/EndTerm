@@ -19,17 +19,17 @@ fun AppRoot() {
     val nav = rememberNavController()
 
     NavHost(navController = nav, startDestination = Routes.FEED) {
-        composable(Routes.LOGIN) { LoginScreen() }
+//        composable(Routes.LOGIN) { LoginScreen() }
         composable(Routes.FEED) { FeedScreen(onOpenDetails = { id -> nav.navigate("details/$id") }) }
-        composable(Routes.SEARCH) { SearchScreen() }
-        composable(Routes.FAVORITES) { FavoritesScreen() }
+//        composable(Routes.SEARCH) { SearchScreen() }
+        composable(Routes.FAVORITES) { FavoritesScreen(onOpenDetails = { id -> nav.navigate("details/$id") }) }
         composable(Routes.DETAILS) { backStack ->
             val id = backStack.arguments?.getString("id") ?: return@composable
             DetailsScreen(id = id, onOpenComments = { nav.navigate("comments/$id") })
         }
         composable(Routes.COMMENTS) { backStack ->
             val id = backStack.arguments?.getString("id") ?: return@composable
-            CommentsScreen(id = id)
+//            CommentsScreen(id = id)
         }
     }
 }

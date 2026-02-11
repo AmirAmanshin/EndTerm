@@ -2,16 +2,15 @@ package com.example.endterm.ui.feed
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.endterm.data.api.FreeToGameApi
+import com.example.endterm.domain.GameRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 data class FeedUiState(
-    val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
     val error: String? = null,
     val items: List<FeedItem> = emptyList()
 )
@@ -25,34 +24,32 @@ data class FeedItem(
 
 @HiltViewModel
 class FeedViewModel @Inject constructor(
-    private val api: FreeToGameApi
+    private val repo: GameRepository
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(FeedUiState())
-    val state: StateFlow<FeedUiState> = _state.asStateFlow()
+    private val _refreshing = MutableStateFlow(false)
+    private val _error = MutableStateFlow<String?>(null)
 
-    init { load() }
+    val state: StateFlow<FeedUiState> =
+        combine(repo.observeFeed(), _refreshing, _error) { games, refreshing, err ->
+            FeedUiState(
+                isRefreshing = refreshing,
+                error = err,
+                items = games.map {
+                    FeedItem(it.id, it.title, it.thumbnailUrl, it.shortDescription)
+                }
+            )
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), FeedUiState(isRefreshing = true))
 
-    fun load() {
+    init { refresh() }
+
+    fun refresh() {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, error = null)
-            runCatching { api.games(sortBy = "popularity") }
-                .onSuccess { list ->
-                    _state.value = FeedUiState(
-                        isLoading = false,
-                        items = list.take(40).map {
-                            FeedItem(
-                                id = it.id,
-                                title = it.title,
-                                thumbnailUrl = it.thumbnailUrl,
-                                description = it.shortDescription
-                            )
-                        }
-                    )
-                }
-                .onFailure { e ->
-                    _state.value = FeedUiState(isLoading = false, error = e.message ?: "Error")
-                }
+            _refreshing.value = true
+            _error.value = null
+            runCatching { repo.refreshFeed() }
+                .onFailure { _error.value = it.message ?: "Network error" }
+            _refreshing.value = false
         }
     }
 }

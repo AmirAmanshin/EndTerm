@@ -23,16 +23,16 @@ fun FeedScreen(
     val state by vm.state.collectAsState()
 
     when {
-        state.isLoading -> {
-            Box(Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        }
+//        state.isLoading -> {
+//            Box(Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
+//                CircularProgressIndicator()
+//            }
+//        }
         state.error != null -> {
             Column(Modifier.padding(16.dp)) {
                 Text("Error: ${state.error}")
                 Spacer(Modifier.height(8.dp))
-                Text("Tap to retry", modifier = Modifier.clickable { vm.load() })
+                Text("Tap to retry", modifier = Modifier.clickable { vm.refresh() })
             }
         }
         else -> {
